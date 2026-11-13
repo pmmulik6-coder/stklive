@@ -26,7 +26,22 @@ jobs:
     env:
       MINUTES: ${{ github.event.inputs.minutes || '180' }}
       STREAM_PRIVACY: ${{ github.event.inputs.privacy || 'public' }}
-      STREAM_TITLE: "Stack Ball 3D LIVE 🔴 रिया की हिंदी कमेंट्री | Satisfying game"
+      STREAM_TITLE: "🔴Live🎮Stack Ball 3D Live Gameplay #shortlive #shortfeed #stackball"
+      STREAM_DESCRIPTION: |
+        🎮 STACK BALL LIVE 🔥 | ULTIMATE CHALLENGE 😱🔥 Don’t Miss This! #VerticalLiveFeed #LiveGaming #usa
+
+        #StackBall
+        #StackBallLive
+        #Live
+        #GamingLive
+        #VerticalLive
+        #VerticalLiveFeed
+        #StackBallGame
+        #HighScore
+        #FinalLevel
+        #gameplay
+        #usa
+        #uk
       YT_STREAM_KEY: ${{ secrets.YT_STREAM_KEY }}
       YOUTUBE_OAUTH_CLIENT_JSON: ${{ secrets.YOUTUBE_OAUTH_CLIENT_JSON }}
       YT_REFRESH_TOKEN: ${{ secrets.YT_REFRESH_TOKEN }}

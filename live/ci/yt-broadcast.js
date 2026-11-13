@@ -53,9 +53,9 @@ async function token() {
   const b = await api('/liveBroadcasts?part=snippet,status,contentDetails', {
     snippet: {
       title: (process.env.STREAM_TITLE || 'Stack Ball 3D LIVE | Hindi commentary').slice(0, 100),
-      description: 'Satisfying Stack Ball 3D, live every day with Hindi commentary. Comment karo, naam lekar reply milega!\n\n'
-        + 'Support (optional): UPI ' + (process.env.UPI_ID || 'mulikprajyot41-1@okaxis') + '\n\n'
-        + 'Note: the game runs on auto-play and the commentary voice is AI-generated.',
+      description: ((process.env.STREAM_DESCRIPTION || 'Stack Ball 3D live gameplay').trim() + '\n\n'
+        + 'Support (optional): UPI ' + (process.env.UPI_ID || 'mulikprajyot41-1@okaxis') + '\n'
+        + 'Note: game on auto-play, commentary voice is AI-generated.').slice(0, 5000),
       scheduledStartTime: start,
     },
     status: { privacyStatus: process.env.STREAM_PRIVACY || 'public', selfDeclaredMadeForKids: false },
