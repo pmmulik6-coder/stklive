@@ -7,6 +7,10 @@ on:
         description: "How long to stream (minutes)"
         default: "5"
         required: true
+      privacy:
+        description: "public, unlisted or private"
+        default: "public"
+        required: true
 
 concurrency:
   group: live
@@ -18,6 +22,8 @@ jobs:
     timeout-minutes: 340
     env:
       MINUTES: ${{ github.event.inputs.minutes || '5' }}
+      STREAM_PRIVACY: ${{ github.event.inputs.privacy || 'public' }}
+      STREAM_TITLE: "Stack Ball 3D LIVE 🔴 रिया की हिंदी कमेंट्री | Satisfying game"
       YT_STREAM_KEY: ${{ secrets.YT_STREAM_KEY }}
       YOUTUBE_OAUTH_CLIENT_JSON: ${{ secrets.YOUTUBE_OAUTH_CLIENT_JSON }}
       YT_REFRESH_TOKEN: ${{ secrets.YT_REFRESH_TOKEN }}

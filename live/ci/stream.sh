@@ -4,7 +4,7 @@
 set -uo pipefail
 MINUTES="${MINUTES:-5}"
 W="${STREAM_W:-720}"; H="${STREAM_H:-1280}"; FPS="${STREAM_FPS:-30}"; VBR="${STREAM_KBPS:-3000}"
-: "${YT_STREAM_KEY:?add the YT_STREAM_KEY secret in the repo settings}"
+YT_STREAM_KEY="${YT_STREAM_KEY:-}"
 ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
 LOGS="$ROOT/live/data/logs"; mkdir -p "$LOGS"
 log() { echo "$(date +%H:%M:%S) $*"; }
@@ -55,7 +55,17 @@ log "using renderer $BEST"
 start_chrome "$BEST"
 sleep 12
 
-# 4) stream; ffmpeg exits on a network error, so restart it right away until the time is up
+# 4) a fresh YouTube broadcast for this run (auto-starts when video arrives, auto-ends when it stops)
+if out=$(node "$ROOT/live/ci/yt-broadcast.js"); then
+  YT_STREAM_KEY=$(echo "$out" | sed -n 's/^KEY=//p')
+  echo "::add-mask::$YT_STREAM_KEY"
+  log "broadcast: https://youtube.com/watch?v=$(echo "$out" | sed -n 's/^VIDEO=//p')"
+else
+  log "could not create a broadcast - using the YT_STREAM_KEY secret as is"
+fi
+[ -n "$YT_STREAM_KEY" ] || { log "no stream key - stopping"; exit 1; }
+
+# 5) stream; ffmpeg exits on a network error, so restart it right away until the time is up
 END=$(( $(date +%s) + MINUTES * 60 ))
 URL="rtmps://a.rtmps.youtube.com:443/live2/${YT_STREAM_KEY}"
 n=0

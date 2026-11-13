@@ -232,9 +232,19 @@ function onGame(ev) {
   else if (ev.type === 'combo') excitedUntil = Math.max(excitedUntil, now + 8000);
   else if (ev.type === 'checkpoint' && ev.pct >= 75) excitedUntil = Math.max(excitedUntil, now + 45000);
   else if (ev.type === 'level_clear' || ev.type === 'died') excitedUntil = now + 5000;
+  // the bot makes a fire ball / combo every few seconds at good fps: comment on them only now and then
+  const gap = GAME_LINE_GAP[ev.type] || 0;
+  if (gap && now - (lastGameLine[ev.type] || 0) < gap) return;
   const line = brain.gameLine(ev);
-  if (line) say('game', line);
+  if (!line) return;
+  if (now - (lastSaid.get(line) || 0) < 180000) return; // never the exact same game line within 3 minutes
+  lastGameLine[ev.type] = now;
+  lastSaid.set(line, now);
+  say('game', line);
 }
+const GAME_LINE_GAP = { fireball: 90000, combo: 60000, score_mark: 30000, level_clear: 20000, died: 20000 };
+const lastGameLine = {};
+const lastSaid = new Map();
 
 // ---------------- likes goal ladder ("let's complete our 100 likes") ----------------
 const LIKE_GOALS = [10, 25, 50, 100, 200, 300, 500, 1000, 2000, 5000, 10000];
