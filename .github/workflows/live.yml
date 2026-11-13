@@ -1,6 +1,9 @@
 name: Live stream
 
 on:
+  schedule:
+    # 13:15 UTC = 6:45 PM IST; setup takes ~6 min, so live by ~7 PM IST (GitHub may start scheduled runs a bit late)
+    - cron: '15 13 * * *'
   workflow_dispatch:
     inputs:
       minutes:
@@ -21,7 +24,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 340
     env:
-      MINUTES: ${{ github.event.inputs.minutes || '5' }}
+      MINUTES: ${{ github.event.inputs.minutes || '180' }}
       STREAM_PRIVACY: ${{ github.event.inputs.privacy || 'public' }}
       STREAM_TITLE: "Stack Ball 3D LIVE 🔴 रिया की हिंदी कमेंट्री | Satisfying game"
       YT_STREAM_KEY: ${{ secrets.YT_STREAM_KEY }}

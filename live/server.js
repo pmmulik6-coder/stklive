@@ -326,7 +326,7 @@ function runPromo() {
   say('promo', brain.promoLine());
   // put the tappable link in chat so phone viewers can pay on the same phone (pin it once in YouTube Studio too)
   if (payUrl && !MOCK) {
-    youtube.postChat(`सहयोग करना चाहें तो, इसी फ़ोन से UPI द्वारा: ${payUrl.startsWith("upi:") ? "UPI ID " + payUrl.slice(13).split("&")[0] : payUrl}  (पूरी तरह आपकी मर्ज़ी)`)
+    youtube.postChat(`🙏 Support karna ho to UPI ID: ${payUrl.startsWith("upi:") ? payUrl.slice(13).split("&")[0] : payUrl}  (10-20 rs bhi chalega, ya side wala QR scan karo ❤️)`)
       .then((ok) => ok && log('[youtube] support link posted in chat'))
       .catch((e) => log('[youtube] could not post the link in chat:', e.message));
   }

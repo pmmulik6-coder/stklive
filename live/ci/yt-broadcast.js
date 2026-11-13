@@ -51,10 +51,20 @@ async function token() {
   // 2) new broadcast that starts by itself when video arrives and ends when it stops
   const start = new Date(Date.now() + 60000).toISOString();
   const b = await api('/liveBroadcasts?part=snippet,status,contentDetails', {
-    snippet: { title: (process.env.STREAM_TITLE || 'Stack Ball 3D LIVE | Hindi commentary').slice(0, 100), scheduledStartTime: start },
+    snippet: {
+      title: (process.env.STREAM_TITLE || 'Stack Ball 3D LIVE | Hindi commentary').slice(0, 100),
+      description: 'Satisfying Stack Ball 3D, live every day with Hindi commentary. Comment karo, naam lekar reply milega!\n\n'
+        + 'Support (optional): UPI ' + (process.env.UPI_ID || 'mulikprajyot41-1@okaxis') + '\n\n'
+        + 'Note: the game runs on auto-play and the commentary voice is AI-generated.',
+      scheduledStartTime: start,
+    },
     status: { privacyStatus: process.env.STREAM_PRIVACY || 'public', selfDeclaredMadeForKids: false },
     contentDetails: { enableAutoStart: true, enableAutoStop: true, enableDvr: true, latencyPreference: 'low', monitorStream: { enableMonitorStream: false } },
   });
+  // YouTube's "altered or synthetic content" label (the voice is synthetic); best effort, never blocks the stream
+  await fetch(API + '/videos?part=status', { method: 'PUT', headers: Object.assign({ 'Content-Type': 'application/json' }, auth),
+    body: JSON.stringify({ id: b.id, status: { privacyStatus: process.env.STREAM_PRIVACY || 'public', selfDeclaredMadeForKids: false, containsSyntheticMedia: true } }) })
+    .then((r) => console.error('[yt] synthetic-media label:', r.ok ? 'set' : 'HTTP ' + r.status)).catch(() => {});
   await api(`/liveBroadcasts/bind?id=${b.id}&part=id,contentDetails&streamId=${stream.id}`, {});
   console.error(`[yt] broadcast ${b.id} created and bound (stream "${stream.snippet.title}")`);
   console.log('KEY=' + key);
