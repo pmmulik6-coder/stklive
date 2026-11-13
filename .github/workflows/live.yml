@@ -48,7 +48,7 @@ jobs:
       - name: System packages (virtual screen, sound, encoder, Hindi phonemes)
         run: |
           sudo apt-get update -qq
-          sudo apt-get install -y -qq xvfb pulseaudio ffmpeg espeak-ng fonts-noto-core fonts-noto-color-emoji > /dev/null
+          sudo apt-get install -y -qq xvfb pulseaudio ffmpeg espeak-ng mesa-utils libgl1-mesa-dri mesa-vulkan-drivers fonts-noto-core fonts-noto-color-emoji > /dev/null
           google-chrome --version
           ffmpeg -version | head -1
           nproc; free -h
@@ -68,6 +68,17 @@ jobs:
 
       - name: Install server packages
         run: npm ci --prefix live --omit=dev
+
+      - name: Cache recorded voice lines
+        uses: actions/cache@v4
+        with:
+          path: live/data/tts
+          key: voicepack-${{ hashFiles('live/lib/brain.js', 'live/lib/tts.js', 'live/lib/kokoro_worker.py') }}
+          restore-keys: voicepack-
+
+      - name: Record voice pack (only lines not cached yet)
+        continue-on-error: true
+        run: npm run voicepack --prefix live
 
       - name: Stream
         run: bash live/ci/stream.sh

@@ -169,10 +169,12 @@ function softTexture() {
 const softTex = softTexture();
 
 // ---------- three.js setup ----------
-const renderer = new THREE.WebGLRenderer({ canvas: el.canvas, antialias: true });
+// ?lite=1: for machines without a GPU (cloud stream runner): no bloom, no shadows, no MSAA from the first frame.
+const LITE = params.get('lite') === '1';
+const renderer = new THREE.WebGLRenderer({ canvas: el.canvas, antialias: !LITE });
 // ?pr=2 renders at 2x resolution (supersampled, sharper HD / 4K capture) on a strong GPU; the auto-quality guard still protects slow ones.
 renderer.setPixelRatio(Number(params.get('pr')) || Math.min(window.devicePixelRatio, 1.5));
-renderer.shadowMap.enabled = true;
+renderer.shadowMap.enabled = !LITE;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 
 const scene = new THREE.Scene();
@@ -531,7 +533,7 @@ let comboOutTimer = 0;
 let stallT = 0;
 const SCORE_MARKS = [100, 250, 500, 1000, 1500, 2000, 3000, 5000, 7500, 10000];
 let scoreMarkIdx = 0;
-let quality = 0;
+let quality = LITE ? 2 : 0;
 let perfAvg = 16.7;
 let perfFrames = 0;
 const fire = { charge: 0, active: false };
@@ -1605,7 +1607,7 @@ window.addEventListener('live-fx', (e) => {
 // Live commentary feed: what is happening right now, every 4s (level, plates left, combo, fireball, ball).
 setInterval(() => {
   if (!live) return;
-  emit('status', { state, progress: totalPlates ? broken / totalPlates : 0, left: plates.length, combo, fire: fire.active, ball: ball.type ? ball.type.nameHi : '' });
+  emit('status', { state, progress: totalPlates ? broken / totalPlates : 0, left: plates.length, combo, fire: fire.active, ball: ball.type ? ball.type.nameHi : '', fps: Math.round(1000 / perfAvg), quality });
 }, 4000);
 
 // ---------- boot ----------

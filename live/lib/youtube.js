@@ -97,7 +97,8 @@ async function start({ onChat, onSuperChat, onMember, log }) {
           const s = it.snippet || {};
           if (Date.parse(s.publishedAt) < startedAt - 60000) continue; // skip old history on connect
           const a = it.authorDetails || {};
-          if (a.isChatOwner && s.type === 'textMessageEvent') continue; // our own posts (support link)
+          // skip only the messages this server posted (support link); the channel owner's own comments are read like anyone's
+          if (a.isChatOwner && s.type === 'textMessageEvent' && posted.some((t) => (s.displayMessage || '').startsWith(t))) continue;
           const author = a.displayName || 'Dost';
           if (s.type === 'textMessageEvent') {
             onChat({ author, text: s.displayMessage || '', isMember: Boolean(a.isChatSponsor), isMod: Boolean(a.isChatModerator), isOwner: Boolean(a.isChatOwner) });
@@ -139,8 +140,10 @@ async function pollStats({ onStats, log }) {
 }
 
 // Post a message into the live chat as the channel (needs OAuth with a youtube / youtube.force-ssl scope).
+const posted = []; // first characters of messages we posted, so the chat reader can skip them
 async function postChat(text) {
   if (!hasOAuth() || !current.chatId) return false;
+  posted.push(text.slice(0, 30)); if (posted.length > 20) posted.shift();
   await api('/liveChat/messages?part=snippet', { method: 'POST', body: { snippet: { liveChatId: current.chatId, type: 'textMessageEvent', textMessageDetails: { messageText: text.slice(0, 200) } } } });
   return true;
 }

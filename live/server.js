@@ -211,9 +211,13 @@ async function confirmWithApi(d) {
 }
 
 // ---------------- game events ----------------
+let lastFpsLog = 0;
 function onGame(ev) {
   if (!ev || typeof ev.type !== 'string') return;
-  if (ev.type === 'status') gameStatus = { state: ev.state, progress: ev.progress, left: ev.left, combo: ev.combo, fire: ev.fire, ball: ev.ball };
+  if (ev.type === 'status') {
+    gameStatus = { state: ev.state, progress: ev.progress, left: ev.left, combo: ev.combo, fire: ev.fire, ball: ev.ball, fps: ev.fps, quality: ev.quality };
+    if (Date.now() - lastFpsLog > 60000) { lastFpsLog = Date.now(); log(`[game] ${ev.fps} fps, quality ${ev.quality}, level ${game.level}`); }
+  }
   game = {
     level: ev.level || game.level,
     attempt: ev.attempt || game.attempt,
@@ -421,7 +425,7 @@ const server = http.createServer(async (req, res) => {
       const f = path.join(tts.DIR, path.basename(p));
       return sendFile(req, res, f);
     }
-    if (p === '/state') return json(res, 200, { voiceReady, youtube: { oauth: youtube.hasOAuth(), videoId: youtube.current.videoId }, game, queue: queue.length, exciting: exciting(), nextPromoInSec: Math.round((nextPromoAt - Date.now()) / 1000), recent: store.recent(5), supporters: store.topSupporters(10), chatters: store.topChatters(10, 1), mock: MOCK, qr: Boolean(qrDataUrl) });
+    if (p === '/state') return json(res, 200, { voiceReady, youtube: { oauth: youtube.hasOAuth(), videoId: youtube.current.videoId }, game, fps: gameStatus.fps, queue: queue.length, exciting: exciting(), nextPromoInSec: Math.round((nextPromoAt - Date.now()) / 1000), recent: store.recent(5), supporters: store.topSupporters(10), chatters: store.topChatters(10, 1), mock: MOCK, qr: Boolean(qrDataUrl) });
     if (p.startsWith('/mock/') && req.method === 'POST' && ALLOW_TEST) {
       const b = JSON.parse((await readBody(req)).toString() || '{}');
       if (p === '/mock/comment') onChat({ author: b.author || 'Rahul', text: b.text || 'hello', isMember: Boolean(b.member) });
