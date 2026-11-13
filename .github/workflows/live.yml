@@ -1,0 +1,81 @@
+name: Live stream
+
+on:
+  workflow_dispatch:
+    inputs:
+      minutes:
+        description: "How long to stream (minutes)"
+        default: "5"
+        required: true
+
+concurrency:
+  group: live
+  cancel-in-progress: false
+
+jobs:
+  live:
+    runs-on: ubuntu-latest
+    timeout-minutes: 340
+    env:
+      MINUTES: ${{ github.event.inputs.minutes || '5' }}
+      YT_STREAM_KEY: ${{ secrets.YT_STREAM_KEY }}
+      YOUTUBE_OAUTH_CLIENT_JSON: ${{ secrets.YOUTUBE_OAUTH_CLIENT_JSON }}
+      YT_REFRESH_TOKEN: ${{ secrets.YT_REFRESH_TOKEN }}
+      YT_CHANNEL_ID: ${{ secrets.YT_CHANNEL_ID }}
+      YT_API_KEY: ${{ secrets.YT_API_KEY }}
+      TTS_PROVIDER: kokoro
+      KOKORO_VOICE: hf_beta
+      KOKORO_SPEED: "0.9"
+      KOKORO_PYTHON: python
+      HOST_NAME_HI: रिया
+      COMMENTARY_GAP_SEC: "2"
+      YT_MIN_POLL_MS: "10000"
+      PROMO_FIRST_MIN: "5"
+      PROMO_MIN: "10"
+      PROMO_MAX: "20"
+      PROMO_AFTER_DONATION_MIN: "5"
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: System packages (virtual screen, sound, encoder, Hindi phonemes)
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq xvfb pulseaudio ffmpeg espeak-ng fonts-noto-core fonts-noto-color-emoji > /dev/null
+          google-chrome --version
+          ffmpeg -version | head -1
+          nproc; free -h
+
+      - name: Cache voice model and pip
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cache/pip
+            ~/.cache/huggingface
+          key: kokoro-0.9.4-v1
+
+      - name: Install Kokoro (CPU)
+        run: |
+          pip install -q torch --index-url https://download.pytorch.org/whl/cpu
+          pip install -q kokoro==0.9.4 soundfile phonemizer-fork espeakng-loader num2words
+
+      - name: Install server packages
+        run: npm ci --prefix live --omit=dev
+
+      - name: Stream
+        run: bash live/ci/stream.sh
+
+      - name: Upload logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: live-logs
+          path: live/data/logs/
+          retention-days: 7
