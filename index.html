@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+<title>Stack Ball 3D - Live</title>
+<link rel="stylesheet" href="style.css" />
+<link rel="stylesheet" href="live.css" />
+</head>
+<body>
+  <div id="stage">
+    <canvas id="c"></canvas>
+    <div id="speed"></div>
+    <div id="vignette"></div>
+
+    <!-- TOP: reaction video (no text on it) + side column: Subscribe, QR, red UPI support button -->
+    <div id="host">
+      <div id="video-box">
+        <video id="host-video" muted loop playsinline autoplay>
+          <source src="live/assets/host.webm" type="video/webm" />
+          <source src="live/assets/host.mp4" type="video/mp4" />
+        </video>
+      </div>
+      <div id="side">
+        <div id="sub-btn"><span class="bell"></span>SUBSCRIBE</div>
+        <!-- last confirmed payment, styled like a payment-success screenshot -->
+        <div id="receipt" class="empty">
+          <div class="rc-head"><span class="rc-check">&#10003;</span><span id="rc-status">PAYMENT SUCCESSFUL</span></div>
+          <div class="rc-body"><span id="rc-amt">&#8377;0</span><span id="rc-name">Be the first supporter!</span></div>
+          <div id="rc-foot">Paid via Razorpay &middot; UPI</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- QR in YouTube's always-visible zone (middle-right), never under the app's top/bottom buttons -->
+    <div id="qr-card"><div id="qr-title">SCAN &amp; PAY</div><img id="qr-img" alt="Scan to support" /><div id="qr-label">ANY UPI APP</div></div>
+
+    <!-- Red support popup (shown during gentle support asks) -->
+    <a id="pay-popup" target="_blank" rel="noopener">
+      <span class="pp-icon"><span class="pp-ring"></span><span class="pp-ring r2"></span><b>UPI</b><span class="pp-tap"></span></span>
+      <span class="pp-text"><b>SUPPORT KARO &#9829;</b><span id="pp-sub">Link chat mein PINNED hai &middot; tap &amp; pay via UPI</span></span>
+    </a>
+
+    <!-- Payment confirmed animation -->
+    <div id="pay-confirm"><div class="pc-check">&#10003;</div><div class="pc-title">PAYMENT RECEIVED</div><div id="pc-amt"></div><div id="pc-name"></div></div>
+
+    <!-- BOTTOM: latest payment (prominent) + recent payments + compact live chat -->
+    <div id="feed">
+      <div id="recent"></div>
+      <div id="feed-list"></div>
+      <div id="feed-foot"><span><i></i>LIVE CHAT</span><span>AI voice &middot; bot plays</span></div>
+    </div>
+    <audio id="voice"></audio>
+
+    <div id="hud">
+      <div id="progress">
+        <div class="lvl-circle" id="lvl-cur">1</div>
+        <div id="bar">
+          <div id="bar-fill"></div>
+          <i style="left:25%"></i><i style="left:50%"></i><i style="left:75%"></i>
+        </div>
+        <div class="lvl-circle" id="lvl-next">2</div>
+      </div>
+      <div id="score" class="t">0</div>
+      <div id="row2">
+        <div id="gems" class="t"><span class="gem-icon"></span><b id="gem-count">0</b></div>
+        <div id="skin-next" class="t"></div>
+      </div>
+      <div id="mission">
+        <div id="mission-head"><span>MISSION</span><span id="mission-reward">+3</span></div>
+        <div id="mission-text"></div>
+        <div id="mission-row">
+          <div id="mission-bar"><div id="mission-fill"></div></div>
+          <span id="mission-count">0/0</span>
+        </div>
+      </div>
+    </div>
+
+    <div id="fire-meter"><div id="fire-fill"></div></div>
+
+    <div id="center-msg" class="t"></div>
+    <div id="sub-msg" class="t"></div>
+    <div id="combo" class="t"><div id="combo-num"></div><div id="combo-label"></div></div>
+    <div id="toast" class="t"><div id="toast-title"></div><div id="toast-sub"></div></div>
+    <div id="countdown" class="t"></div>
+    <div id="bottom-msg" class="t"></div>
+    <div id="cta" class="t"></div>
+    <div id="stats" class="t"></div>
+    <div id="badge">AUTO</div>
+    <div id="flash"></div>
+    <div id="fade"></div>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/shaders/CopyShader.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/shaders/LuminosityHighPassShader.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/EffectComposer.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/RenderPass.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/ShaderPass.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/UnrealBloomPass.js"></script>
+  <script src="qrcode-generator.js"></script>
+  <script src="audio.js"></script>
+  <script src="ball.js"></script>
+  <script src="game.js"></script>
+  <script src="live.js"></script>
+</body>
+</html>

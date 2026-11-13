@@ -1,0 +1,12 @@
+# secrets and local-only data: never upload
+.env
+live/.env
+.history/
+live/data/
+node_modules/
+
+# not part of this project
+ai-dress-promo-video/
+.claude/
+.vscode/
+__pycache__/

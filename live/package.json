@@ -1,0 +1,16 @@
+{
+  "name": "stack3d-live",
+  "private": true,
+  "version": "1.0.0",
+  "scripts": {
+    "start": "node server.js",
+    "mock": "node server.js --mock",
+    "sim:razorpay": "node simulate-razorpay.js",
+    "voicepack": "node voicepack.js",
+    "yt-login": "node yt-login.js"
+  },
+  "dependencies": {
+    "qrcode": "^1.5.4",
+    "qrcode-generator": "^2.0.4"
+  }
+}

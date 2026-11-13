@@ -1,0 +1,473 @@
+/* Live-stream layout. 1u = 1% of the stage width (stage is 100u x 177.78u, i.e. 9:16).
+   TOP     0..32u           reaction video (exact 16:9, no text on it) + Subscribe + last-payment receipt
+   MIDDLE  32u..(bottom)    the game (biggest part). The QR floats on its right side: YouTube's own buttons cover
+                            the top strip and the bottom of a vertical live, but never the middle sides.
+   BOTTOM  var(--blank)     recent supporters + compact live chat (15% of height by default) */
+
+#host,
+#feed,
+#pay-popup,
+#pay-confirm,
+#qr-card {
+  display: none;
+}
+
+#stage.live #c {
+  top: calc(var(--u) * 32);
+}
+
+/* ---------------- TOP ---------------- */
+#stage.live #host {
+  display: block;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: calc(var(--u) * 32);
+  background: #120a22;
+  z-index: 2;
+  overflow: hidden;
+}
+#host > * {
+  position: absolute;
+}
+
+#video-box {
+  left: 0;
+  top: 0;
+  width: calc(var(--u) * 57);
+  height: 100%;
+  overflow: hidden;
+  background: #000;
+}
+#video-box video {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 45% 35%;
+}
+#host.speaking #video-box {
+  box-shadow: inset 0 0 0 calc(var(--u) * 0.6) #ff6bd6;
+}
+
+#side {
+  left: calc(var(--u) * 57);
+  top: 0;
+  width: calc(var(--u) * 43);
+  height: 100%;
+  padding: calc(var(--u) * 1.4) calc(var(--u) * 2);
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--u) * 1);
+  background: linear-gradient(to bottom, #1f1236, #120a22);
+}
+
+#sub-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: calc(var(--u) * 1);
+  flex: none;
+  height: calc(var(--u) * 4.6);
+  border-radius: calc(var(--u) * 2.3);
+  background: #e60026;
+  color: #fff;
+  font-size: calc(var(--u) * 2.2);
+  font-weight: 900;
+  letter-spacing: calc(var(--u) * 0.12);
+}
+#sub-btn .bell {
+  width: calc(var(--u) * 1.9);
+  height: calc(var(--u) * 1.9);
+  border-radius: 50% 50% 18% 18%;
+  background: #fff;
+}
+#sub-btn.press {
+  animation: subpress 0.7s ease-out;
+}
+@keyframes subpress {
+  30% { transform: scale(0.9); background: #b8001e; }
+  60% { transform: scale(1.06); }
+}
+
+/* last payment, styled like a payment-success screenshot */
+#receipt {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  border-radius: calc(var(--u) * 2);
+  background: #fff;
+  color: #0b1d3a;
+  overflow: hidden;
+  box-shadow: 0 calc(var(--u) * 0.6) calc(var(--u) * 2) rgba(0, 0, 0, 0.45);
+}
+.rc-head {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: calc(var(--u) * 1);
+  height: calc(var(--u) * 4.2);
+  padding: 0 calc(var(--u) * 1.6);
+  background: #16a34a;
+  color: #fff;
+  font-size: calc(var(--u) * 1.9);
+  font-weight: 900;
+  letter-spacing: calc(var(--u) * 0.12);
+}
+.rc-check {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: calc(var(--u) * 2.6);
+  height: calc(var(--u) * 2.6);
+  border-radius: 50%;
+  background: #fff;
+  color: #16a34a;
+  font-size: calc(var(--u) * 1.8);
+}
+.rc-body {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 0 calc(var(--u) * 1.8);
+}
+#rc-amt {
+  font-size: calc(var(--u) * 6.2);
+  font-weight: 900;
+  line-height: 1.05;
+}
+#rc-name {
+  font-size: calc(var(--u) * 2.8);
+  font-weight: 800;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+#rc-foot {
+  flex: none;
+  display: flex;
+  align-items: center;
+  height: calc(var(--u) * 3.4);
+  padding: 0 calc(var(--u) * 1.8);
+  border-top: calc(var(--u) * 0.2) dashed #d0d7e2;
+  color: #4b5b74;
+  font-size: calc(var(--u) * 1.6);
+  font-weight: 700;
+  white-space: nowrap;
+  overflow: hidden;
+}
+#receipt.empty .rc-head {
+  background: #ff2d4a;
+}
+#receipt.empty #rc-amt {
+  font-size: calc(var(--u) * 3.4);
+  color: #c20018;
+}
+#receipt.flash {
+  animation: rcflash 1.4s ease-out;
+}
+@keyframes rcflash {
+  0% { transform: scale(1.08); box-shadow: 0 0 calc(var(--u) * 5) #3fe07a; }
+  100% { transform: none; }
+}
+
+/* ---------------- MIDDLE ---------------- */
+#stage.live #score {
+  top: calc(var(--u) * 33.5);
+  font-size: calc(var(--u) * 8);
+}
+#stage.live #row2 {
+  top: calc(var(--u) * 35);
+}
+#stage.live #combo {
+  top: calc(var(--u) * 46);
+}
+
+/* big, always-visible QR on the middle-right of the game */
+#stage.live #qr-card {
+  display: block;
+  right: calc(var(--u) * 2.5);
+  top: calc(var(--u) * 35);
+  width: calc(var(--u) * 20);
+  padding: calc(var(--u) * 1);
+  border-radius: calc(var(--u) * 2.2);
+  background: #fff;
+  border: calc(var(--u) * 0.5) solid #ff2d4a;
+  box-shadow: 0 0 calc(var(--u) * 3) rgba(255, 45, 74, 0.6);
+  z-index: 3;
+}
+#qr-title {
+  margin-bottom: calc(var(--u) * 0.6);
+  border-radius: calc(var(--u) * 1);
+  background: #ff2d4a;
+  color: #fff;
+  text-align: center;
+  font-size: calc(var(--u) * 1.8);
+  font-weight: 900;
+  letter-spacing: calc(var(--u) * 0.12);
+  line-height: calc(var(--u) * 2.9);
+}
+#qr-card img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 1;
+  image-rendering: pixelated;
+}
+#qr-label {
+  margin-top: calc(var(--u) * 0.4);
+  text-align: center;
+  color: #111;
+  font-size: calc(var(--u) * 1.8);
+  font-weight: 900;
+  letter-spacing: calc(var(--u) * 0.15);
+}
+#qr-card.demo #qr-title {
+  background: #555;
+}
+
+/* red support popup: slides up from the bottom of the game area, pulses, then hides */
+#stage.live #pay-popup {
+  display: flex;
+  align-items: center;
+  gap: calc(var(--u) * 3);
+  left: calc(var(--u) * 4);
+  right: calc(var(--u) * 4);
+  bottom: calc(var(--blank, 15%) + var(--u) * 2.5);
+  height: calc(var(--u) * 12);
+  padding: 0 calc(var(--u) * 3);
+  border-radius: calc(var(--u) * 3);
+  background: linear-gradient(135deg, #ff2d4a, #b80016);
+  color: #fff;
+  text-decoration: none;
+  box-shadow: 0 calc(var(--u) * 1) calc(var(--u) * 4) rgba(184, 0, 22, 0.7);
+  z-index: 4;
+  opacity: 0;
+  transform: translateY(calc(var(--u) * 8)) scale(0.9);
+  pointer-events: none;
+  transition: opacity 0.35s ease, transform 0.45s cubic-bezier(0.2, 1.4, 0.4, 1);
+}
+#stage.live #pay-popup.on {
+  opacity: 1;
+  transform: none;
+  pointer-events: auto;
+  animation: popglow 1.4s ease-in-out infinite 0.5s;
+}
+@keyframes popglow {
+  50% { box-shadow: 0 0 calc(var(--u) * 6) rgba(255, 60, 90, 0.95); }
+}
+.pp-icon {
+  position: relative;
+  flex: none;
+  width: calc(var(--u) * 8);
+  height: calc(var(--u) * 8);
+  border-radius: 50%;
+  background: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.pp-icon b {
+  color: #c20018;
+  font-size: calc(var(--u) * 2.6);
+  font-weight: 900;
+}
+.pp-ring {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: calc(var(--u) * 0.5) solid #fff;
+  animation: ring 1.6s ease-out infinite;
+}
+.pp-ring.r2 {
+  animation-delay: 0.8s;
+}
+@keyframes ring {
+  from { transform: scale(1); opacity: 0.9; }
+  to { transform: scale(1.8); opacity: 0; }
+}
+.pp-tap {
+  position: absolute;
+  right: calc(var(--u) * -1.5);
+  bottom: calc(var(--u) * -1.5);
+  width: calc(var(--u) * 3.2);
+  height: calc(var(--u) * 3.2);
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.85);
+  border: calc(var(--u) * 0.5) solid #ffd23f;
+  animation: tap 1.6s ease-in-out infinite;
+}
+@keyframes tap {
+  0%, 100% { transform: translate(calc(var(--u) * 1.2), calc(var(--u) * 1.2)) scale(1); }
+  40% { transform: translate(0, 0) scale(0.75); }
+}
+.pp-text {
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--u) * 0.6);
+  min-width: 0;
+}
+.pp-text b {
+  font-size: calc(var(--u) * 4);
+  font-weight: 900;
+  letter-spacing: calc(var(--u) * 0.15);
+}
+#pp-sub {
+  font-size: calc(var(--u) * 2.3);
+  font-weight: 700;
+  opacity: 0.95;
+}
+
+/* payment confirmed: pops in the middle of the game, then the top receipt takes over */
+#stage.live #pay-confirm {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  left: 50%;
+  top: calc(var(--u) * 70);
+  min-width: calc(var(--u) * 62);
+  padding: calc(var(--u) * 3) calc(var(--u) * 5);
+  border-radius: calc(var(--u) * 4);
+  background: linear-gradient(135deg, #fffbe8, #ffe08a);
+  color: #2a1400;
+  box-shadow: 0 0 calc(var(--u) * 6) rgba(255, 200, 40, 0.9);
+  z-index: 5;
+  opacity: 0;
+  transform: translateX(-50%) scale(0.5);
+  pointer-events: none;
+}
+#stage.live #pay-confirm.on {
+  animation: confirm 4.2s cubic-bezier(0.2, 1.4, 0.4, 1) forwards;
+}
+@keyframes confirm {
+  0% { opacity: 0; transform: translateX(-50%) scale(0.5); }
+  10% { opacity: 1; transform: translateX(-50%) scale(1.05); }
+  16% { transform: translateX(-50%) scale(1); }
+  85% { opacity: 1; transform: translateX(-50%) scale(1); }
+  100% { opacity: 0; transform: translateX(-50%) translateY(calc(var(--u) * -40)) scale(0.5); }
+}
+.pc-check {
+  width: calc(var(--u) * 9);
+  height: calc(var(--u) * 9);
+  border-radius: 50%;
+  background: #1fbf5a;
+  color: #fff;
+  font-size: calc(var(--u) * 6);
+  font-weight: 900;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.pc-title {
+  margin-top: calc(var(--u) * 1.4);
+  font-size: calc(var(--u) * 2.8);
+  font-weight: 900;
+  letter-spacing: calc(var(--u) * 0.3);
+  color: #1a8f45;
+}
+#pc-amt {
+  font-size: calc(var(--u) * 9);
+  font-weight: 900;
+  line-height: 1.1;
+}
+#pc-name {
+  font-size: calc(var(--u) * 4);
+  font-weight: 900;
+}
+
+/* ---------------- BOTTOM ---------------- */
+#stage.live #feed {
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--u) * 0.6);
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: var(--blank, 15%);
+  padding: calc(var(--u) * 0.8) calc(var(--u) * 2);
+  background: #0f0820;
+  border-top: calc(var(--u) * 0.4) solid #ff6bd6;
+  z-index: 2;
+  overflow: hidden;
+}
+#recent {
+  flex: none;
+  height: calc(var(--u) * 3);
+  color: #ffe9a8;
+  font-size: calc(var(--u) * 2.1);
+  font-weight: 800;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+#feed-list {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  gap: calc(var(--u) * 0.5);
+  overflow: hidden;
+}
+.frow {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: calc(var(--u) * 1.2);
+  height: calc(var(--u) * 3.8);
+  padding: 0 calc(var(--u) * 1.6);
+  border-radius: calc(var(--u) * 1.9);
+  background: rgba(255, 255, 255, 0.07);
+  color: #fff;
+  font-size: calc(var(--u) * 2.4);
+  font-weight: 700;
+  white-space: nowrap;
+  overflow: hidden;
+  animation: frowin 0.3s ease-out;
+}
+@keyframes frowin {
+  from { transform: translateY(calc(var(--u) * 3)); opacity: 0; }
+  to { transform: none; opacity: 1; }
+}
+.frow b {
+  flex: none;
+  max-width: 40%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-weight: 900;
+}
+.frow span {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.frow.member {
+  background: linear-gradient(90deg, #7a3cff, #ff4fa3);
+}
+#feed-foot {
+  flex: none;
+  display: flex;
+  justify-content: space-between;
+  height: calc(var(--u) * 2);
+  color: rgba(255, 255, 255, 0.55);
+  font-size: calc(var(--u) * 1.5);
+  font-weight: 800;
+  letter-spacing: calc(var(--u) * 0.15);
+}
+#feed-foot span:first-child {
+  display: flex;
+  align-items: center;
+  gap: calc(var(--u) * 0.8);
+}
+#feed-foot i {
+  width: calc(var(--u) * 1.1);
+  height: calc(var(--u) * 1.1);
+  border-radius: 50%;
+  background: #ff2d55;
+  animation: livedot 1.2s ease-in-out infinite;
+}
+@keyframes livedot {
+  50% { opacity: 0.3; }
+}

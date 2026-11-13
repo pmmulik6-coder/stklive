@@ -1,0 +1,12 @@
+{
+  "name": "stack3d",
+  "private": true,
+  "description": "Shortcuts: the live server lives in ./live, these forward to it so npm commands work from this folder too.",
+  "scripts": {
+    "start": "npm --prefix live run start",
+    "mock": "npm --prefix live run mock",
+    "yt-login": "npm --prefix live run yt-login",
+    "voicepack": "npm --prefix live run voicepack",
+    "sim:razorpay": "npm --prefix live run sim:razorpay"
+  }
+}
