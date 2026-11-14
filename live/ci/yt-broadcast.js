@@ -61,10 +61,33 @@ async function token() {
     status: { privacyStatus: process.env.STREAM_PRIVACY || 'public', selfDeclaredMadeForKids: false },
     contentDetails: { enableAutoStart: true, enableAutoStop: true, enableDvr: true, latencyPreference: 'low', monitorStream: { enableMonitorStream: false } },
   });
-  // YouTube's "altered or synthetic content" label (the voice is synthetic); best effort, never blocks the stream
-  await fetch(API + '/videos?part=status', { method: 'PUT', headers: Object.assign({ 'Content-Type': 'application/json' }, auth),
-    body: JSON.stringify({ id: b.id, status: { privacyStatus: process.env.STREAM_PRIVACY || 'public', selfDeclaredMadeForKids: false, containsSyntheticMedia: true } }) })
-    .then((r) => console.error('[yt] synthetic-media label:', r.ok ? 'set' : 'HTTP ' + r.status)).catch(() => {});
+  // Discovery metadata the live-broadcast API can't set: Gaming category, tags, Hindi language, embeddable,
+  // plus YouTube's "altered or synthetic content" label (the voice is synthetic). Best effort, never blocks the stream.
+  const tags = (process.env.STREAM_TAGS || '').split(',').map((t) => t.trim()).filter(Boolean);
+  const tagList = [];
+  let tagChars = 0;
+  for (const t of tags) { if (tagChars + t.length + 1 > 480) break; tagList.push(t); tagChars += t.length + 1; } // YouTube cap ~500 chars
+  const meta = {
+    id: b.id,
+    snippet: {
+      title: b.snippet.title,
+      description: b.snippet.description,
+      categoryId: process.env.STREAM_CATEGORY || '20', // 20 = Gaming
+      tags: tagList,
+      defaultLanguage: 'hi',
+      defaultAudioLanguage: 'hi',
+    },
+    status: {
+      privacyStatus: process.env.STREAM_PRIVACY || 'public',
+      selfDeclaredMadeForKids: false,
+      containsSyntheticMedia: true,
+      embeddable: true,
+      publicStatsViewable: true,
+    },
+  };
+  await fetch(API + '/videos?part=snippet,status', { method: 'PUT', headers: Object.assign({ 'Content-Type': 'application/json' }, auth), body: JSON.stringify(meta) })
+    .then(async (r) => console.error('[yt] category/tags/language:', r.ok ? `set (${tagList.length} tags)` : 'HTTP ' + r.status + ' ' + (await r.text()).slice(0, 200)))
+    .catch((e) => console.error('[yt] metadata update failed:', e.message));
   await api(`/liveBroadcasts/bind?id=${b.id}&part=id,contentDetails&streamId=${stream.id}`, {});
   console.error(`[yt] broadcast ${b.id} created and bound (stream "${stream.snippet.title}")`);
   console.log('KEY=' + key);

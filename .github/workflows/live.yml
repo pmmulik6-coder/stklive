@@ -33,6 +33,7 @@ jobs:
       MINUTES: ${{ github.event.inputs.minutes || '180' }}
       STREAM_PRIVACY: ${{ github.event.inputs.privacy || 'public' }}
       STREAM_TITLE: "🔴Live🎮Stack Ball 3D Live Gameplay #shortlive #shortfeed #stackball"
+      STREAM_TAGS: "stack ball,stack ball live,stack ball 3d,stack ball game,stack ball gameplay,stackball,stack ball high score,stack ball final level,live gameplay,game live,mobile game live,satisfying game,oddly satisfying,relaxing game,hyper casual game,ball game,3d game live,vertical live,shorts live,short live,live shorts,hindi gaming,hindi live stream,gaming live hindi,live stream india,ball smash"
       STREAM_DESCRIPTION: |
         🎮 STACK BALL LIVE 🔥 | ULTIMATE CHALLENGE 😱🔥 Don’t Miss This! #VerticalLiveFeed #LiveGaming #usa
 
@@ -59,7 +60,7 @@ jobs:
       KOKORO_PYTHON: python
       HOST_NAME_HI: रिया
       COMMENTARY_GAP_SEC: "2"
-      YT_MIN_POLL_MS: "10000"
+      YT_MIN_POLL_MS: "15000"  # 2 lives x 3 h of chat reading must fit the 10,000 units/day YouTube API quota
       PROMO_FIRST_MIN: "5"
       PROMO_MIN: "10"
       PROMO_MAX: "20"
