@@ -762,9 +762,9 @@ function buildLevel() {
   botState.plate = null;
   botState.blunder = false;
   const boss = isBoss(level);
-  const base = boss ? BOSS_THEME : THEMES[(level - 1 + (live ? SEED : 0)) % THEMES.length];
+  const pal = boss ? BOSS_THEME : THEMES[(level - 1 + (live ? SEED : 0)) % THEMES.length];
   const tint = (c) => (HUE_SHIFT ? new THREE.Color(c).offsetHSL(HUE_SHIFT, 0, 0).getHex() : c);
-  const theme = boss ? base : { bg: tint(base.bg), plate: tint(base.plate), pole: tint(base.pole), ball: tint(base.ball), base: base.base };
+  const theme = boss ? pal : { bg: tint(pal.bg), plate: tint(pal.plate), pole: tint(pal.pole), ball: tint(pal.ball), base: pal.base };
   const rand = mulberry32(level * 7919 + 13 + (live ? SEED * 31 : 0));
 
   const bg = new THREE.Color(theme.bg);

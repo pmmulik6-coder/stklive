@@ -63,8 +63,8 @@
     receipt.classList.toggle('empty', !top);
     if (!top) {
       $('rc-status').textContent = 'SUPPORT KARO';
-      $('rc-amt').textContent = 'Be the first!';
-      $('rc-name').textContent = 'Your name shows here';
+      $('rc-amt').textContent = '₹10 - ₹20';
+      $('rc-name').textContent = 'bhi bahut hai ❤️';
       $('rc-foot').textContent = 'Scan the QR · any UPI app';
     } else {
       $('rc-status').textContent = 'PAYMENT SUCCESSFUL';
