@@ -326,8 +326,8 @@ const SFX = (() => {
     // While the host speaks: music almost off, game effects well below her voice.
     duck: (on) => {
       if (!ctx) return;
-      musicBus.gain.setTargetAtTime(on ? 0.06 : (musicOn ? 0.5 : 0), ctx.currentTime, 0.15);
-      sfxBus.gain.setTargetAtTime(on ? 0.3 : 1, ctx.currentTime, 0.12);
+      musicBus.gain.setTargetAtTime(on ? 0.12 : (musicOn ? 0.5 : 0), ctx.currentTime, 0.15);
+      sfxBus.gain.setTargetAtTime(on ? 0.55 : 1, ctx.currentTime, 0.12);
     },
     // Overall game loudness (live mode keeps the game under the host's voice).
     setMaster: (v) => { if (init()) master.gain.value = v; },

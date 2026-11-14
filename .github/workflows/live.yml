@@ -2,8 +2,9 @@ name: Live stream
 
 on:
   schedule:
-    # 13:15 UTC = 6:45 PM IST; setup takes ~6 min, so live by ~7 PM IST (GitHub may start scheduled runs a bit late)
-    - cron: '15 13 * * *'
+    # India time = UTC + 5:30. Setup takes ~6-8 min and GitHub can start scheduled runs late, so start ~25 min early.
+    - cron: '05 01 * * *'   # 06:35 IST -> live ~7 AM
+    - cron: '05 12 * * *'   # 17:35 IST -> live ~6 PM
   workflow_dispatch:
     inputs:
       minutes:

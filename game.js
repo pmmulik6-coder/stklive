@@ -78,6 +78,11 @@ let auto = params.get('auto') !== '0';
 if (params.get('clean') === '1') document.getElementById('badge').classList.add('hidden');
 const customCta = (params.get('cta') || '').split('|').map((s) => s.trim()).filter(Boolean);
 const musicWanted = params.get('music') !== '0';
+// Every live looks different: ?seed= picks the colour order, hue tint, ball order and plate layouts for this session
+// (random when not given); ?start=N with ?reset=1 starts the session at level N.
+const SEED = Math.abs(Math.floor(Number(params.get('seed')))) || Math.floor(Math.random() * 1e6);
+const HUE_SHIFT = live ? ((SEED % 21) - 10) / 100 : 0;
+const START_LEVEL = Math.max(0, Math.floor(Number(params.get('start')) || 0));
 // ?reset=1 clears saved progress (level, best, stats) so a stream starts fresh from level 1
 if (params.get('reset') === '1') {
   try { ['sb_level', 'sb_best', 'sb_stats2', 'sb_skin'].forEach((k) => localStorage.removeItem(k)); } catch (e) { /* storage blocked */ }
@@ -266,7 +271,7 @@ const ball = { mesh: new THREE.Group(), body: null, mats: [], type: null, trail:
 scene.add(ball.mesh);
 
 function setBallType(lvl) {
-  const t = ballTypeFor(lvl);
+  const t = ballTypeFor(lvl, live ? SEED % 12 : 0);
   if (ball.body) { ball.mesh.remove(ball.body); disposeObj(ball.body); }
   const b = t.build(BALL_R);
   ball.body = b.obj;
@@ -491,7 +496,7 @@ setInterval(saveStats, 5000);
 window.addEventListener('beforeunload', saveStats);
 
 // ---------- game state ----------
-let level = load('sb_level', 1);
+let level = params.get('reset') === '1' && START_LEVEL ? START_LEVEL : load('sb_level', 1);
 let best = load('sb_best', 0);
 let score = 0;
 let levelStartScore = 0;
@@ -757,8 +762,10 @@ function buildLevel() {
   botState.plate = null;
   botState.blunder = false;
   const boss = isBoss(level);
-  const theme = boss ? BOSS_THEME : THEMES[(level - 1) % THEMES.length];
-  const rand = mulberry32(level * 7919 + 13);
+  const base = boss ? BOSS_THEME : THEMES[(level - 1 + (live ? SEED : 0)) % THEMES.length];
+  const tint = (c) => (HUE_SHIFT ? new THREE.Color(c).offsetHSL(HUE_SHIFT, 0, 0).getHex() : c);
+  const theme = boss ? base : { bg: tint(base.bg), plate: tint(base.plate), pole: tint(base.pole), ball: tint(base.ball), base: base.base };
+  const rand = mulberry32(level * 7919 + 13 + (live ? SEED * 31 : 0));
 
   const bg = new THREE.Color(theme.bg);
   const plateColor = new THREE.Color(theme.plate);
@@ -1614,7 +1621,7 @@ setInterval(() => {
 ['pointerdown', 'keydown', 'touchstart', 'click'].forEach((ev) =>
   window.addEventListener(ev, () => SFX.resume(), { passive: true }));
 SFX.init();
-if (live) SFX.setMaster(0.45); // the host's voice must stay clearly on top of the game
+if (live) SFX.setMaster(0.75); // satisfying smashes, still under the host's voice (live.js ducks the game while she talks)
 if (!musicWanted) SFX.setMusic(false);
 el.badge.textContent = auto ? 'AUTO' : 'MANUAL';
 resize();

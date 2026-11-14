@@ -181,15 +181,17 @@
 }
 #stage.live #row2 {
   top: calc(var(--u) * 35);
+  justify-content: flex-end; /* gem counter on the right, the QR has the left */
 }
 #stage.live #combo {
   top: calc(var(--u) * 46);
 }
 
 /* big, always-visible QR on the middle-right of the game */
+/* left side: on phones the Shorts like/comment/share buttons cover the right edge of the video */
 #stage.live #qr-card {
   display: block;
-  right: calc(var(--u) * 2.5);
+  left: calc(var(--u) * 2.5);
   top: calc(var(--u) * 35);
   width: calc(var(--u) * 20);
   padding: calc(var(--u) * 1);

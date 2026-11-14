@@ -304,7 +304,7 @@
   const BOMB = { name: 'bomb', nameHi: 'बम', build: bomb };
 
   window.BALL_TYPES = TYPES;
-  window.ballTypeFor = (level) => (level % 5 === 0 ? BOMB : TYPES[(level - 1) % TYPES.length]);
+  window.ballTypeFor = (level, offset = 0) => (level % 5 === 0 ? BOMB : TYPES[(level - 1 + offset) % TYPES.length]);
   window.collectBallMats = (obj) => {
     const set = new Set();
     obj.traverse((o) => { if (o.material) set.add(o.material); });
