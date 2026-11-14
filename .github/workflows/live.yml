@@ -3,8 +3,8 @@ name: Live stream
 on:
   schedule:
     # India time = UTC + 5:30. Setup takes ~6-8 min and GitHub can start scheduled runs late, so start ~25 min early.
-    - cron: '05 01 * * *'   # 06:35 IST -> live ~7 AM
-    - cron: '05 12 * * *'   # 17:35 IST -> live ~6 PM
+    - cron: '05 01 * * *'   # 06:35 IST -> live ~7 AM   (runs only in pmmulik6-coder/stklive)
+    - cron: '05 12 * * *'   # 17:35 IST -> live ~6 PM   (runs only in prajmulik49-stack/sta)
   workflow_dispatch:
     inputs:
       minutes:
@@ -22,6 +22,11 @@ concurrency:
 
 jobs:
   live:
+    # same file in both repos: the 7 AM live comes from stklive, the 6 PM live from sta; manual runs work in either
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      (github.repository == 'pmmulik6-coder/stklive' && github.event.schedule == '05 01 * * *') ||
+      (github.repository == 'prajmulik49-stack/sta' && github.event.schedule == '05 12 * * *')
     runs-on: ubuntu-latest
     timeout-minutes: 340
     env:
