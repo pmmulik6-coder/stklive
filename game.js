@@ -799,7 +799,7 @@ function buildLevel() {
   document.documentElement.style.setProperty('--accent', '#' + new THREE.Color(theme.ball).getHexString());
 
   // Difficulty curve
-  const count = Math.min(Math.floor((28 + level * 3) * (boss ? 1.25 : 1)), 130);
+  const count = Math.min(Math.floor((28 + level * 3) * (boss ? 1.25 : 1)), live ? 70 : 130); // live: shorter towers keep software rendering smooth for hours
   const blackChance = boss ? 0.95 : Math.min(0.3 + level * 0.06, 0.92);
   const maxBlack = Math.min(boss ? 3 + Math.floor(level / 5) : 1 + Math.floor(level / 3), 5);
   const spinChance = boss ? 0.45 : level >= 5 ? Math.min(0.1 + level * 0.02, 0.4) : 0;
