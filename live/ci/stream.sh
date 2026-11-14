@@ -3,7 +3,9 @@
 #   commentary server -> Chrome (game page) on a virtual screen -> ffmpeg -> YouTube RTMPS, for $MINUTES minutes.
 set -uo pipefail
 MINUTES="${MINUTES:-5}"
-W="${STREAM_W:-1080}"; H="${STREAM_H:-1920}"; FPS="${STREAM_FPS:-30}"; VBR="${STREAM_KBPS:-6800}"
+# the page is drawn at W x H (software rendering keeps up at 720p) and ffmpeg upscales it to OUT_W x OUT_H (YouTube 1080p)
+W="${STREAM_W:-720}"; H="${STREAM_H:-1280}"; OUT_W="${STREAM_OUT_W:-1080}"; OUT_H="${STREAM_OUT_H:-1920}"
+FPS="${STREAM_FPS:-30}"; VBR="${STREAM_KBPS:-6000}"
 YT_STREAM_KEY="${YT_STREAM_KEY:-}"
 ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
 LOGS="$ROOT/live/data/logs"; mkdir -p "$LOGS"
@@ -26,9 +28,9 @@ grep -q '"voiceReady":true' <(curl -s http://127.0.0.1:8787/state) || log "voice
 
 # 3) the game page, full screen, sound allowed without a click.
 #    No GPU here, so try the software renderers for 25s each and keep the one with the best frame rate.
-PR="${STREAM_PR:-0.6}"   # 3D drawn at 60% of 1080x1920 and scaled up; text, QR and video stay full 1080p sharp
+PR="${STREAM_PR:-0.75}"   # 3D drawn at 75% of the window and scaled up
 # a new look every live: random colour order / tint / ball order / layouts, and a random starting level
-SEED="${STREAM_SEED:-$RANDOM$RANDOM}"; START="${STREAM_START:-$(( RANDOM % 30 + 1 ))}"
+SEED="${STREAM_SEED:-$RANDOM$RANDOM}"; START="${STREAM_START:-$(( RANDOM % 12 + 1 ))}"
 log "session seed $SEED, starting at level $START"
 PAGE="http://127.0.0.1:8787/?lite=1&reset=1&seed=${SEED}&start=${START}&pr=${PR}"
 COMMON=(--kiosk --no-first-run --no-default-browser-check --disable-infobars --noerrdialogs
@@ -55,7 +57,7 @@ if [ -z "$BEST" ]; then
   BEST="${BEST:-swiftshader}"
 fi
 log "using renderer $BEST"
-if [ "${best_fps:-30}" -lt 28 ] && [ -z "${STREAM_PR:-}" ]; then PR=0.5; PAGE="${PAGE%&pr=*}&pr=${PR}"; log "fps low, drawing 3D at ${PR}x"; fi
+if [ "${best_fps:-30}" -lt 30 ] && [ -z "${STREAM_PR:-}" ]; then PR=0.6; PAGE="${PAGE%&pr=*}&pr=${PR}"; log "fps low, drawing 3D at ${PR}x"; fi
 start_chrome "$BEST"
 sleep 12
 
@@ -79,7 +81,7 @@ while [ "$(date +%s)" -lt "$END" ]; do
   timeout "$left" ffmpeg -hide_banner -loglevel warning -stats_period 30 \
     -thread_queue_size 1024 -f x11grab -draw_mouse 0 -video_size "${W}x${H}" -framerate "$FPS" -i :99.0 \
     -thread_queue_size 1024 -f pulse -i live.monitor \
-    -c:v libx264 -preset ultrafast -tune zerolatency -pix_fmt yuv420p -g $((FPS * 2)) -keyint_min $((FPS * 2)) \
+    -vf "scale=${OUT_W}:${OUT_H}:flags=lanczos" -c:v libx264 -preset ultrafast -tune zerolatency -pix_fmt yuv420p -g $((FPS * 2)) -keyint_min $((FPS * 2)) \
     -b:v "${VBR}k" -maxrate "${VBR}k" -bufsize "$((VBR * 2))k" \
     -c:a aac -b:a 128k -ar 44100 -ac 2 \
     -f flv "$URL" 2>&1 | sed "s/${YT_STREAM_KEY}/***/g"
